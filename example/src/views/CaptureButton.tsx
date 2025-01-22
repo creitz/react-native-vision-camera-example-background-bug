@@ -127,41 +127,19 @@ const _CaptureButton: React.FC<Props> = ({
       console.debug(`state: ${Object.keys(State)[event.state]}`)
       switch (event.state) {
         case State.BEGAN: {
-          // enter "recording mode"
-          recordingProgress.value = 0
-          isPressingButton.value = true
-          const now = new Date()
-          pressDownDate.current = now
-          setTimeout(() => {
-            if (pressDownDate.current === now) {
-              // user is still pressing down after 200ms, so his intention is to create a video
-              startRecording()
-            }
-          }, START_RECORDING_DELAY)
-          setIsPressingButton(true)
           return
         }
         case State.END:
         case State.FAILED:
         case State.CANCELLED: {
-          // exit "recording mode"
-          try {
-            if (pressDownDate.current == null) throw new Error('PressDownDate ref .current was null!')
-            const now = new Date()
-            const diff = now.getTime() - pressDownDate.current.getTime()
-            pressDownDate.current = undefined
-            if (diff < START_RECORDING_DELAY) {
-              // user has released the button within 200ms, so his intention is to take a single picture.
-              await takePhoto()
-            } else {
-              // user has held the button for more than 200ms, so he has been recording this entire time.
-              await stopRecording()
-            }
-          } finally {
-            setTimeout(() => {
-              isPressingButton.value = false
-              setIsPressingButton(false)
-            }, 500)
+          if (isPressingButton.value) {
+            isPressingButton.value = false
+            setIsPressingButton(false)
+            await stopRecording()
+          } else {
+            isPressingButton.value = true
+            setIsPressingButton(true)
+            startRecording()
           }
           return
         }

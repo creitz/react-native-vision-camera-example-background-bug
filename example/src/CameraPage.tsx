@@ -65,6 +65,13 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     device = preferredDevice
   }
 
+  useEffect(() => {
+    if (!isForeground && isPressingButton.value) {
+      console.log('pausing recording')
+      camera.current?.pauseRecording()
+    }
+  })
+
   const [targetFps, setTargetFps] = useState(60)
 
   const screenAspectRatio = SCREEN_HEIGHT / SCREEN_WIDTH
@@ -183,7 +190,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
     runAtTargetFps(10, () => {
       'worklet'
-      console.log(`${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.orientation})`)
+      // console.log(`${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.orientation})`)
       examplePlugin(frame)
       exampleKotlinSwiftPlugin(frame)
     })
